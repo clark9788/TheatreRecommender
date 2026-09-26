@@ -1,7 +1,8 @@
 # Connecting Arts People to an External Recommender System
 
 **Status:** Evaluation / initial feasibility
-**Date:** 2026-09-15
+**Date:** 2026-09-15 (revised 2026-09-25)
+**Companion:** [`RecommenderInputs.md`](RecommenderInputs.md) — item-metadata sourcing and the audience rating signal.
 **Scope:** Can the current Arts People ticketing + patron data be fed to an existing open-source
 recommender system via an automated periodic extract — *without* replacing Arts People?
 
@@ -169,6 +170,38 @@ want to maintain it.
 **Feedback TTL:** scope to roughly 2–3 seasons. Older shows should not influence current
 recommendations, and the weights degrade naturally if left unbounded.
 
+### Scale, and a correction to the density argument
+
+The venue runs **~300 performances a year across 2 venues and 4 stages**. An earlier draft of this
+section assumed a much smaller programme and concluded that sparsity was not a problem. At this
+scale that conclusion does not hold — but the performance count alone does not settle it either,
+because the item catalogue is **productions, not performances**. 300 performances is roughly 15
+productions at 20 performances each, or 40 at 7–8 each.
+
+**Productions per year is the most important unconfirmed number in this project.** Modelled at ~120
+seats and a ~70% house:
+
+| Productions/year | Tickets/year | Unique patrons (~3 each) | Purchase-matrix density |
+|---|---|---|---|
+| 15 | ~25,000 | ~8,000 | ~13% |
+| 20 | ~25,000 | ~8,000 | ~10% |
+| 40 | ~25,000 | ~8,000 | ~5% |
+
+At 10–13% density collaborative filtering is thin but viable from **year 2–3**; at 40 productions
+the catalogue churns fast enough that content tags must carry the early results. Either way the
+per-patron signal accumulates at only ~3–5 events/year, so **content/tag affinity and item quality
+carry years 1–2**. This strengthens §5's engine recommendation and leaves §8's co-occurrence-first
+sequence intact.
+
+**New requirement at this scale — availability-aware delivery.** With ~6 performances a week, the
+highest-value use is *in-run demand smoothing* (filling soft performances) rather than season
+announcement. That requires recommendations to be filtered against **live seat inventory at send
+time**: items stay productions, but the performance calendar and remaining capacity become item
+attributes.
+
+> **See also:** [`RecommenderInputs.md`](RecommenderInputs.md) — item-metadata sourcing (Wikidata
+> probe results), the audience rating signal and its biases, and the demand-smoothing reframe.
+
 ---
 
 ## 7. Practical caveats
@@ -178,7 +211,10 @@ recommendations, and the weights degrade naturally if left unbounded.
   complete behavioural graph. Also establish retention and deletion rules — the exported copy
   makes the theatre the controller of a second dataset.
 - **Contract terms.** Confirm whether the Arts People agreement permits bulk extraction and
-  third-party processing of patron data. Do not assume it does.
+  third-party processing of patron data. Do not assume it does. **Competitive-use angle:** if the
+  client intends to sell the resulting capability — or a recommender built on it — to other
+  theatres, Neon One may treat bulk extraction and resale as competing use. Raise this explicitly
+  with the vendor rather than assuming extraction rights imply resale rights.
 - **Surfacing.** Assume recommendations cannot be rendered *inside* Arts People. Delivery is via
   your own website, newsletter, or mail-merge. Set expectations accordingly — this is a
   marketing-side feature, not a box-office-side one.
@@ -230,18 +266,22 @@ script attached.
 | `#Ticketing System.md` | Drupal entry claimed *Recommender API* / *Computing Framework* "implement collaborative filtering directly." *Recommender API* is an abstraction layer exposing hooks; it ships no trained model. | Reworded with a currency caveat (Drupal 7-era modules; Drupal 10/11 support is the deciding factor) and flagged as the weakest option in the list. | ✅ Applied |
 | `#Ticketing System.md` | Recommender section written from a greenfield/self-hosted angle with no reference to the *current* system. | Cross-reference to this document added at the top of the `# Recommender` section. | ✅ Applied |
 | `CurrentSystem.md` | Pricing (base subscription ~$31.25/mo, CRM ~$99/mo) does not match the current Arts People page, which states no monthly dues and a flat $0.99/ticket + transaction fees. | **Not changed** — this is a factual question, not an error that can be resolved editorially. Verify against an actual invoice or quote. If the replacement business case depends on those monthly figures, the arithmetic changes materially. | ⚠️ Needs verification |
+| `RecommendationPath.md` | §6 argued that sparsity was not a problem, based on an assumed programme far smaller than the venue's actual ~300 performances/year across 2 venues and 4 stages. | Density argument revised and made conditional on **productions per year**; sparsity is real at this scale. New availability-aware delivery requirement added. Cross-reference to `RecommenderInputs.md` added. | ✅ Applied |
 
 ---
 
 ## 11. Recommendation
 
 1. **Ask Neon One questions 1–2 first.** Everything downstream depends on the answer.
-2. **Build the co-occurrence report** from a manual export to prove the value quickly and cheaply.
-3. **If a scheduled extract is available**, stand up Gorse with the schema in §6 and surface
+2. **Confirm the post-show rating feed with the theatre** — whether the survey link carries a patron
+   ID, where responses land, and whether historical responses exist. This is the highest-value input
+   in the project (see `RecommenderInputs.md` §4).
+3. **Build the co-occurrence report** from a manual export to prove the value quickly and cheaply.
+4. **If a scheduled extract is available**, stand up Gorse with the schema in §6 and surface
    results in the newsletter.
-4. **If only manual exports are available**, run the experiment on a monthly manual export before
+5. **If only manual exports are available**, run the experiment on a monthly manual export before
    investing in automation — and revisit Neon CRM as a route to a real API.
-5. **Do not plan on rendering recommendations inside Arts People.**
+6. **Do not plan on rendering recommendations inside Arts People.**
 
 ---
 

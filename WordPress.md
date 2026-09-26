@@ -1,3 +1,7 @@
+> **See also:** [`WordPressDeepDive.md`](WordPressDeepDive.md) — the current (2026-09-18) deployment, cost and completeness analysis for this route: hosting tiers and runbook, licence prices for the seat-map/ticketing plugins, per-transaction maths, break-even against Arts People, and the two things WordPress cannot do (season tickets with seat selection; resale as a sellable product).
+>
+> ⚠️ **Licence note:** this document describes a **GPL end-to-end** stack. That is fine for a hosted service, but it is a problem for a closed product you intend to sell — see `FullSystemRecommendation.md` §2 and §7.
+
 At its core, **WordPress** is an open-source Content Management System (CMS) written in PHP and backed by a MySQL database. Rather than building a web app or ticketing system from scratch, WordPress provides an underlying architecture (user management, database structures, routing, page rendering, and an admin dashboard). You then extend its functionality using **Plugins** and customize its design using **Themes**.
 
 Here is a breakdown of how the WordPress ecosystem works to handle ticketing and recommendations for a community theatre.
